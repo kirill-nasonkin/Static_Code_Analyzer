@@ -5,6 +5,7 @@ Obtain a path to file or directory as a command_line argument.
 Search for all .py files in the directory or analyze a single .py file.
 
 Modules used: re, sys, ast, os.
+
 Checks implemented:
   1) long_line
   2) indentation
