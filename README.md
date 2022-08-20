@@ -1,8 +1,22 @@
 # Static_Code_Analyzer
-Project on JetBrains Academy
+Python Core project on JetBrains Academy.
 
-Obtain a path to file or directory as a command_line argument.
-Search for all .py files in the directory or analyze a single .py file.
+A small static code analyzer provided to understand 
+how static source code analyzers work, what is AST and regular expressions. 
+This project could be implemented with OOP, UnitTesting or with 
+try: -- except: block, but here you can see it in a functional programming way.
+
+Script obtains a path to file or directory as a command line argument.
+Searches for all '.py' files in the directory or analyze a single '.py' file. 
+Finds common stylistic issues in Python code and provides 
+certain output in a format:
+
+"Path to file: Line number: Code(S001 - S012) of Issue and Issue message".
+
+How to run:
+
+cmd: python static_analyzer.py {path_to_file/path_to_directory}
+
 
 Modules used: re, sys, ast, os.
 
@@ -19,3 +33,5 @@ Checks implemented:
   10) check_argnames_errors
   11) check_var_names_errors
   12) check_mutable_defaults
+
+All the functions descriptions you can find within DockStrings in code_analyzer.py file.
