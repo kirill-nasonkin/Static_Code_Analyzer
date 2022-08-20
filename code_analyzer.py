@@ -21,9 +21,10 @@ def main():
                     all_tests(path_to_file)
 
 
-def all_tests(path_to_file):
-    """Check the lines of code in given file.
-    Print the Issue Messages in case they are found.
+def all_tests(path_to_file: str):
+    """Open a file. Create AST. Call a certain list of funcs
+    that check the code in given file for stylistic Issues.
+     As a result -> calling the print_output() func with defined message.
     """
     file = open(path_to_file)
     code = file.read()
@@ -51,16 +52,16 @@ def all_tests(path_to_file):
     file.close()
 
 
-def ast_argnames_check(tree) -> dict:
+def ast_argnames_check(tree: ast.AST) -> dict:
     """Find argument names and check them for snake_case writing.
 
     Return argname_errors dictionary ->  {line_number: arg_name} where "arg_name"
-    is not written in snake_case
+    is not written in snake_case.
     """
     args_names_with_line = dict()
     tree_walk = ast.walk(tree)
 
-    # creating dict with line_n: args_names
+    # creating dict -> {line_n: args_names}
     for node in tree_walk:
         if isinstance(node, ast.FunctionDef):
             line_num = node.lineno
@@ -68,7 +69,7 @@ def ast_argnames_check(tree) -> dict:
             for a in node.args.args:
                 args_names_with_line[line_num].append(a.arg)
 
-    # checking whether arg_names written in snake_case
+    # checking whether arg_names were written in snake_case
     argname_errors = dict()
     for line_n, arg_name in args_names_with_line.items():
         for name in arg_name:
@@ -78,9 +79,9 @@ def ast_argnames_check(tree) -> dict:
     return argname_errors
 
 
-def ast_check_defaults(tree) -> dict:
-    """Check whether default argument value is mutable
-    Return defaults_in_args dictionary -> {line_number: default_type}
+def ast_check_defaults(tree: ast.AST) -> dict:
+    """Check whether default argument value is mutable.
+    Return defaults_in_args dictionary -> {line_number: default_type}.
     """
     defaults_in_args = dict()
     tree_walk = ast.walk(tree)
@@ -95,11 +96,11 @@ def ast_check_defaults(tree) -> dict:
     return defaults_in_args
 
 
-def ast_var_name_check(tree) -> dict:
-    """Find variable names and check them for snake_case writing.
+def ast_var_name_check(tree: ast.AST) -> dict:
+    """Search variable names inside functions and check them for snake_case writing.
 
-    Return var_name_errors dictionary ->  {line_number: var_name} where "var_name"
-    is not written in snake_case.
+    Return var_name_errors dictionary ->  {line_number: var_name}
+    where "var_name" is not written in snake_case.
     """
     var_names_with_line = dict()
     tree_walk = ast.walk(tree)
@@ -120,65 +121,101 @@ def ast_var_name_check(tree) -> dict:
 
 
 def print_output(path: str, line_num: int, message: str):
-    """Print given message in special format"""
+    """Print given message in a format:
+    "Path to file: Line number: A code(S001 - S012) of Issue and Issue message."
+    """
     print(f"{path}: Line {line_num}: {message}")
 
 
 # CHECKS
-def long_line(path_to_file, line_number, line):
+def long_line(path_to_file: str, line_number: int, line: str):
+    """Check whether a line is more than 79 symbols long.
+    If True -> call print_output() func with "S001 Too long" message.
+    """
     if len(line) > 79:
         print_output(path_to_file, line_number, "S001 Too long")
 
 
-def indentation(path_to_file, line_number, line):
+def indentation(path_to_file: str, line_number: int, line: str):
+    """Check whether an indentation is a multiple of four
+    If False -> call print_output() func
+    with "S002 Indentation is not a multiple of four" message.
+    """
     if line != '\n' and (len(line) - len(line.lstrip())) % 4 != 0:
         print_output(path_to_file, line_number, "S002 Indentation is not a multiple of four")
 
 
-def unnecessary_semicolon(path_to_file, line_number, line):
+def unnecessary_semicolon(path_to_file: str, line_number: int, line: str):
+    """Search for unnecessary semicolons.
+    If found -> call print_output() func
+    with "S003 Unnecessary semicolon after a statement" message.
+    """
     match = re.findall(r"\);", line)
     match_1 = re.findall(r"; #", line)
     if len(match) > 0 or len(match_1) > 0:
         print_output(path_to_file, line_number, "S003 Unnecessary semicolon after a statement")
 
 
-def less_two_space(path_to_file, line_number, line):
+def less_two_space(path_to_file: str, line_number: int, line: str):
+    """Check whether there are less than two spaces before inline comments.
+    If True -> call print_output() func
+    with "S004 Less than two spaces before inline comments" message.
+    """
     if not line.startswith("#") and "#" in line:
         if "  #" not in line.lower():
             print_output(path_to_file, line_number, "S004 Less than two spaces before inline comments")
 
 
-def todo_found(path_to_file, line_number, line):
+def todo_found(path_to_file: str, line_number: int, line: str):
+    """Find any "_todo_ in code.
+    If found -> call print_output() func with "S005 _TODO_ found" message.
+    """
     if "# todo" in line.lower():
         print_output(path_to_file, line_number, "S005 TODO found")
 
 
-def blank_line_check(path, line_num, line):
+def blank_line_check(path_to_file: str, line_number: int, line: str):
+    """Check if there are more than 2 blank lines preceding a code lines.
+    If True -> call print_output() func with
+    "S006 More than two blank lines preceding a code line" message.
+    """
     global blank_line_count
     if line == "\n":
         blank_line_count += 1
     elif line != "\n":
         if blank_line_count > 2:
-            print_output(path, line_num, "S006 More than two blank lines preceding a code line")
+            print_output(path_to_file, line_number, "S006 More than two blank lines preceding a code line")
             blank_line_count = 0
         else:
             blank_line_count = 0
 
 
-def many_spaces_after_constr_name(path_to_file, line_number, line):
+def many_spaces_after_constr_name(path_to_file: str, line_number: int, line: str):
+    """Check whether there are correct number of spaces after construction names.
+    If False -> call print_output() func with
+    "S007 Too many spaces after construction_name" message.
+    """
     match_s007 = re.findall(r"(def|class) {2,}\w+", line)
     if len(match_s007) > 0:
         print_output(path_to_file, line_number, "S007 Too many spaces after construction_name")
 
 
-def check_class_name(path_to_file, line_number, line):
+def check_class_name(path_to_file: str, line_number: int, line: str):
+    """Check class names for correct writing.
+    If False -> call print_output() func with
+    "S008 Class name should be written in CamelCase" message.
+    """
     if "class" in line:
         match_s008 = re.match(r"class +([A-Z][a-z]+)+\b", line)
         if match_s008 is None:
             print_output(path_to_file, line_number, "S008 Class name should be written in CamelCase")
 
 
-def check_func_name(path_to_file, line_number, line):
+def check_func_name(path_to_file: str, line_number: int, line: str):
+    """Check functions names for correct writing.
+    If False -> call print_output() func with
+    "S009 Function name should be written in snake_case" message.
+    """
     if "def" in line:
         line_strip = line.lstrip()
         match_009 = re.match(r"def *(_{0,2}[a-z0-9]+_{0,2})+\b", line_strip)
@@ -187,23 +224,35 @@ def check_func_name(path_to_file, line_number, line):
                          "S009 Function name should be written in snake_case")
 
 
-def check_argnames_errors(path_to_file, line_number, argname_errors):
+def check_argnames_errors(path_to_file: str, line_number: int, argname_errors: dict):
+    """Check whether current line_number in argname_errors dictionary.
+    If True -> call print_output() func with
+    "S010 Argument name 'arg_name' should be written in snake_case" message.
+    """
     if line_number in argname_errors:
         arg_name = argname_errors[line_number]
         print_output(path_to_file, line_number,
                      f"S010 Argument name '{arg_name}' should be written in snake_case")
 
 
-def check_var_names_errors(path_to_file, line_number, var_name_errors):
+def check_var_names_errors(path_to_file: str, line_number: int, var_name_errors: dict):
+    """Check whether current line_number in var_name_errors dictionary.
+    If True -> call print_output() func with
+    "S011 Variable name 'var_name' should be written in snake_case" message.
+    """
     if line_number in var_name_errors:
         var_name = var_name_errors[line_number]
         print_output(path_to_file, line_number, f"S011 Variable '{var_name}' should be written in snake_case")
 
 
-def check_mutable_defaults(path_to_file, line_number, defaults_in_args):
+def check_mutable_defaults(path_to_file: str, line_number: int, defaults_in_args: dict):
+    """Check whether current line_number in defaults_in_args dictionary.
+    If True -> call print_output() func with
+    "S012 The default argument value is mutable" message.
+    """
     if line_number in defaults_in_args:
         print_output(path_to_file, line_number,
-                     f"S012 The default argument value is mutable.")
+                     f"S012 The default argument value is mutable")
 
 
 if __name__ == '__main__':
