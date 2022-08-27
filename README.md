@@ -34,4 +34,4 @@ Checks implemented:
   11) check_var_names_errors
   12) check_mutable_defaults
 
-All the functions descriptions you can find within DockStrings in code_analyzer.py file.
+You can find all the functions descriptions within DocStrings inside code_analyzer.py file.
