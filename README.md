@@ -2,9 +2,7 @@
 Python Core project on JetBrains Academy.
 
 A small static code analyzer provided to understand 
-how static source code analyzers work, what is AST and regular expressions. 
-This project could be implemented with OOP, UnitTesting or with 
-try: -- except: block, but here you can see it in a functional programming way.
+how static source code analyzers work, what is AST and regular expressions.
 
 Script obtains a path to file or directory as a command line argument.
 Searches for all '.py' files in the directory or analyze a single '.py' file. 
@@ -33,5 +31,3 @@ Checks implemented:
   10) check_argnames_errors
   11) check_var_names_errors
   12) check_mutable_defaults
-
-You can find all the functions descriptions within DocStrings inside code_analyzer.py file.
