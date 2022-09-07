@@ -3,9 +3,6 @@ import sys
 import os
 import ast
 
-blank_line_count = 0
-
-
 def main():
     """Obtain a path as a command_line argument.
     Search for all .py files in the directory and call all_test() func on their paths.
@@ -14,7 +11,7 @@ def main():
     if os.path.isfile(base_path):
         all_tests(base_path)
     elif os.path.isdir(base_path):
-        for dirpath, dirnames, filenames in os.walk(base_path):
+        for dirpath, _, filenames in os.walk(base_path):
             for filename in filenames:
                 if filename.endswith(".py"):
                     path_to_file = os.path.join(dirpath, filename)
@@ -26,7 +23,9 @@ def all_tests(path_to_file: str):
     that check the code in given file for stylistic Issues.
      As a result -> calling the print_output() func with defined message.
     """
-    file = open(path_to_file)
+    blank_line_count = 0
+
+    file = open(path_to_file, encoding='utf-8')
     code = file.read()
     tree = ast.parse(code)
     file.seek(0)
@@ -42,7 +41,7 @@ def all_tests(path_to_file: str):
         unnecessary_semicolon(path_to_file, line_number, line)
         less_two_space(path_to_file, line_number, line)
         todo_found(path_to_file, line_number, line)
-        blank_line_check(path_to_file, line_number, line)
+        blank_line_check(blank_line_count, path_to_file, line_number, line)
         many_spaces_after_constr_name(path_to_file, line_number, line)
         check_class_name(path_to_file, line_number, line)
         check_func_name(path_to_file, line_number, line)
@@ -90,7 +89,7 @@ def ast_check_defaults(tree: ast.AST) -> dict:
         if isinstance(node, ast.FunctionDef):
             line_num = node.lineno
             for a in node.args.defaults:
-                if (isinstance(a, ast.List) or isinstance(a, ast.Dict) or isinstance(a, ast.Call)
+                if (isinstance(a, (ast.List, ast.Dict, ast.Call))
                         and line_num not in defaults_in_args):
                     defaults_in_args[line_num] = type(a)
     return defaults_in_args
@@ -163,7 +162,8 @@ def less_two_space(path_to_file: str, line_number: int, line: str):
     """
     if not line.startswith("#") and "#" in line:
         if "  #" not in line.lower():
-            print_output(path_to_file, line_number, "S004 Less than two spaces before inline comments")
+            print_output(path_to_file, line_number,
+                        "S004 Less than two spaces before inline comments")
 
 
 def todo_found(path_to_file: str, line_number: int, line: str):
@@ -174,17 +174,17 @@ def todo_found(path_to_file: str, line_number: int, line: str):
         print_output(path_to_file, line_number, "S005 TODO found")
 
 
-def blank_line_check(path_to_file: str, line_number: int, line: str):
+def blank_line_check(blank_line_count, path_to_file: str, line_number: int, line: str):
     """Check if there are more than 2 blank lines preceding a code lines.
     If True -> call print_output() func with
     "S006 More than two blank lines preceding a code line" message.
     """
-    global blank_line_count
     if line == "\n":
         blank_line_count += 1
     elif line != "\n":
         if blank_line_count > 2:
-            print_output(path_to_file, line_number, "S006 More than two blank lines preceding a code line")
+            print_output(path_to_file, line_number,
+                        "S006 More than two blank lines preceding a code line")
             blank_line_count = 0
         else:
             blank_line_count = 0
@@ -242,7 +242,8 @@ def check_var_names_errors(path_to_file: str, line_number: int, var_name_errors:
     """
     if line_number in var_name_errors:
         var_name = var_name_errors[line_number]
-        print_output(path_to_file, line_number, f"S011 Variable '{var_name}' should be written in snake_case")
+        print_output(path_to_file, line_number,
+                    f"S011 Variable '{var_name}' should be written in snake_case")
 
 
 def check_mutable_defaults(path_to_file: str, line_number: int, defaults_in_args: dict):
@@ -252,7 +253,7 @@ def check_mutable_defaults(path_to_file: str, line_number: int, defaults_in_args
     """
     if line_number in defaults_in_args:
         print_output(path_to_file, line_number,
-                     f"S012 The default argument value is mutable")
+                     "S012 The default argument value is mutable")
 
 
 if __name__ == '__main__':
